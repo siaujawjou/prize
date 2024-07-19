@@ -1,212 +1,169 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>奖金计算器</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap">
+    <title>Bet Winning Calculation</title>
     <style>
         body {
-            font-family: 'Noto Sans SC', sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
-            margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+            margin: 20px;
         }
-        .container {
-            max-width: 100%;
-            width: 600px;
-            margin: 0 auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        h1 {
-            text-align: center;
-            color: #4CAF50;
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-        }
-        input[type="number"], input[type="text"] {
-            width: calc(100% - 24px);
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 16px;
-            box-sizing: border-box;
-        }
-        button {
+        textarea {
             width: 100%;
-            padding: 12px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s;
+            height: 200px;
         }
-        button:hover {
-            background-color: #45a049;
-        }
-        #result {
-            text-align: center;
-            font-size: 20px;
-            font-weight: bold;
+        .result {
             margin-top: 20px;
+        }
+        .result p {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ddd;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>**862咖啡厅**奖金计算器</h1>
-        <div class="form-group">
-            <label for="provider">请输入投注在哪一边（1-9）：</label>
-            <input type="number" id="provider" min="1" max="9">
-        </div>
-        <div class="form-group">
-            <label for="prize">请输入奖项类型（1: 头奖, 2: 二奖, 3: 三奖, 4: 入围奖, 5: 安慰奖）：</label>
-            <input type="number" id="prize" min="1" max="5">
-        </div>
-        <div class="form-group">
-            <label for="betType">请输入投注类型（1: 大, 2: 小, 3: 单A）：</label>
-            <input type="number" id="betType" min="1" max="3">
-        </div>
-        <div class="form-group">
-            <label for="betAmount">请输入投注金额：</label>
-            <input type="number" id="betAmount" min="1">
-        </div>
-        <div class="form-group">
-            <label for="ibox">是否选择 ibox（1: 是, 0: 否）：</label>
-            <input type="number" id="ibox" min="0" max="1">
-        </div>
-        <div class="form-group" id="winningNumberGroup" style="display: none;">
-            <label for="winningNumber">请输入4位中奖号码：</label>
-            <input type="text" id="winningNumber" maxlength="4">
-        </div>
-        <button onclick="calculateWinnings()">计算中奖金额</button>
-        <div id="result">中奖金额：0</div>
-    </div>
+    <h1>Bet Winning Calculation</h1>
+    <form id="betForm">
+        <label for="betInput">Enter bet details:</label><br><br>
+        <textarea id="betInput"></textarea><br><br>
+        <button type="button" onclick="calculateWinnings()">Calculate Winnings</button>
+    </form>
+    <div class="result" id="result"></div>
 
     <script>
-        function getRates(provider) {
-            return {
-                Big: {
-                    1: [2600, 1000, 500, 200, 60],
-                    2: [2600, 1000, 500, 200, 60],
-                    3: [2600, 1000, 500, 200, 60],
-                    4: [2600, 1000, 500, 200, 60],
-                    5: [2600, 1000, 500, 200, 60],
-                    6: [2600, 1000, 500, 200, 60],
-                    7: [2600, 1000, 500, 200, 60],
-                    8: [2900, 1000, 500, 200, 60],
-                    9: [3000, 1000, 500, 200, 60],
-                },
-                Small: {
-                    1: [3600, 2000, 1000],
-                    2: [3600, 2000, 1000],
-                    3: [3600, 2000, 1000],
-                    4: [3600, 2000, 1000],
-                    5: [3600, 2000, 1000],
-                    6: [3600, 2000, 1000],
-                    7: [3600, 2000, 1000],
-                    8: [3900, 2000, 1000],
-                    9: [4000, 2000, 1000],
-                },
-                SingleA: {
-                    1: 6300,
-                    2: 6300,
-                    3: 6300,
-                    4: 6300,
-                    5: 6300,
-                    6: 6300,
-                    7: 6300,
-                    8: 6800,
-                    9: 7000,
-                },
-            };
+        const prizeAmounts = {
+            B: {
+                M: [2600, 1000, 500, 200, 60],
+                P: [2600, 1000, 500, 200, 60],
+                T: [2600, 1000, 500, 200, 60],
+                S: [2600, 1000, 500, 200, 60],
+                H: [2900, 1000, 500, 200, 60],
+                E: [3000, 1000, 500, 200, 60]
+            },
+            S: {
+                M: [3600, 2000, 1000],
+                P: [3600, 2000, 1000],
+                T: [3600, 2000, 1000],
+                S: [3600, 2000, 1000],
+                H: [3900, 2000, 1000],
+                E: [4000, 2000, 1000]
+            },
+            A1: {
+                M: 6300,
+                P: 6300,
+                T: 6300,
+                S: 6300,
+                H: 6800,
+                E: 7000
+            }
+        };
+
+        function calculatePermutations(number) {
+            const digits = number.split('');
+            const uniqueDigitsCount = {};
+            digits.forEach(digit => {
+                uniqueDigitsCount[digit] = (uniqueDigitsCount[digit] || 0) + 1;
+            });
+
+            const counts = Object.values(uniqueDigitsCount).sort((a, b) => b - a);
+
+            if (counts.length === 1) return 1; // AAAA
+            if (counts.length === 2) {
+                if (counts[0] === 3) return 4; // AAAB
+                return 6; // AABB
+            }
+            if (counts.length === 3) return 12; // AABC
+            return 24; // ABCD
         }
 
         function calculateWinnings() {
-            const provider = parseInt(document.getElementById('provider').value);
-            const prize = parseInt(document.getElementById('prize').value);
-            const betType = parseInt(document.getElementById('betType').value);
-            const betAmount = parseFloat(document.getElementById('betAmount').value);
-            const ibox = parseInt(document.getElementById('ibox').value);
-            let winningNumber = document.getElementById('winningNumber').value;
+            const betInput = document.getElementById('betInput').value;
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '';
 
-            const rates = getRates(provider);
+            const lines = betInput.split('\n');
+            const betResults = {};
 
-            let prizeRate;
-            if (betType === 1) {
-                prizeRate = rates.Big[provider][prize - 1];
-            } else if (betType === 2) {
-                if (prize > 3) {
-                    document.getElementById('result').innerText = "中奖金额：0";
-                    return;
+            let currentBetNumber = null;
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+
+                if (line.startsWith('==')) {
+                    break;
                 }
-                prizeRate = rates.Small[provider][prize - 1];
-            } else if (betType === 3) {
-                if (prize !== 1) {
-                    document.getElementById('result').innerText = "中奖金额：0";
-                    return;
+
+                if (line === '') {
+                    continue;
                 }
-                prizeRate = rates.SingleA[provider];
+
+                const match = line.match(/([MPTSHE])-(\d)-(\d{4}) \((\d+)\)/);
+                if (match) {
+                    currentBetNumber = match[4];
+                    const serviceProvider = match[1];
+                    const prizePosition = parseInt(match[2]) - 1;
+                    const winningNumber = match[3];
+                    const betDetails = lines[i + 1].split(' ');
+                    const betAmount = parseFloat(betDetails[0]);
+                    const betType = betDetails[1];
+                    const ibxOption = betDetails.includes('ibx');
+                    const permutations = calculatePermutations(winningNumber);
+
+                    const prizeArray = prizeAmounts[betType][serviceProvider];
+                    const prizeAmount = prizeArray[prizePosition];
+                    const winningAmount = ibxOption ? prizeAmount / permutations : prizeAmount;
+
+                    if (!betResults[currentBetNumber]) {
+                        betResults[currentBetNumber] = {
+                            totalWinning: 0,
+                            details: []
+                        };
+                    }
+
+                    betResults[currentBetNumber].totalWinning += winningAmount;
+                    betResults[currentBetNumber].details.push({
+                        winningNumber,
+                        ibxOption,
+                        betAmount,
+                        betType,
+                        serviceProvider,
+                        prizePosition: prizePosition + 1,
+                        winningAmount
+                    });
+                }
             }
 
-            let winnings = betAmount * prizeRate;
+            const prizeNames = ["头奖", "二奖", "三奖", "入围", "安慰"];
 
-            if (ibox) {
-                if (winningNumber.length === 4 && /^[0-9]+$/.test(winningNumber)) {
-                    const permutations = new Set();
-                    function permute(str, l, r) {
-                        if (l === r) permutations.add(str);
-                        else {
-                            for (let i = l; i <= r; i++) {
-                                str = swap(str, l, i);
-                                permute(str, l + 1, r);
-                                str = swap(str, l, i);
-                            }
-                        }
-                    }
-                    function swap(str, i, j) {
-                        let temp;
-                        const charArray = str.split('');
-                        temp = charArray[i];
-                        charArray[i] = charArray[j];
-                        charArray[j] = temp;
-                        return charArray.join('');
-                    }
-                    permute(winningNumber, 0, winningNumber.length - 1);
-                    const possibleCombinations = permutations.size;
-                    winnings /= possibleCombinations;
-                } else {
-                    document.getElementById('result').innerText = "中奖金额：0";
-                    return;
-                }
+            for (const betNumber in betResults) {
+                const betResult = betResults[betNumber];
+                const totalWinning = betResult.totalWinning.toFixed(2);
+
+                betResult.details.forEach(detail => {
+                    const {
+                        winningNumber,
+                        ibxOption,
+                        betAmount,
+                        betType,
+                        serviceProvider,
+                        prizePosition,
+                        winningAmount
+                    } = detail;
+
+                    const ibxText = ibxOption ? "ibx" : "";
+                    const prizeName = prizeNames[prizePosition - 1];
+
+                    const p = document.createElement('p');
+                    p.textContent = `${winningNumber}-${ibxText}-${betAmount}-${betType}-${serviceProvider}-[${prizePosition}]${prizeName}-${winningAmount.toFixed(2)}`;
+                    resultDiv.appendChild(p);
+                });
+
+                const totalP = document.createElement('p');
+                totalP.textContent = `【${betNumber}】号单 总奖金数 = $${totalWinning}`;
+                totalP.style.fontWeight = 'bold';
+                resultDiv.appendChild(totalP);
             }
-
-            document.getElementById('result').innerText = `中奖金额：${winnings.toFixed(2)}`;
         }
-
-        document.getElementById('ibox').addEventListener('change', function () {
-            const winningNumberGroup = document.getElementById('winningNumberGroup');
-            if (this.value == 1) {
-                winningNumberGroup.style.display = 'block';
-            } else {
-                winningNumberGroup.style.display = 'none';
-            }
-        });
     </script>
 </body>
 </html>
