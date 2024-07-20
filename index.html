@@ -111,7 +111,8 @@
 
                     const prizeArray = prizeAmounts[betType][serviceProvider];
                     const prizeAmount = prizeArray[prizePosition];
-                    const winningAmount = ibxOption ? prizeAmount / permutations : prizeAmount;
+                    const baseWinningAmount = ibxOption ? prizeAmount / permutations : prizeAmount;
+                    const finalWinningAmount = baseWinningAmount * betAmount;
 
                     if (!betResults[currentBetNumber]) {
                         betResults[currentBetNumber] = {
@@ -120,7 +121,7 @@
                         };
                     }
 
-                    betResults[currentBetNumber].totalWinning += winningAmount;
+                    betResults[currentBetNumber].totalWinning += finalWinningAmount;
                     betResults[currentBetNumber].details.push({
                         winningNumber,
                         ibxOption,
@@ -128,7 +129,7 @@
                         betType,
                         serviceProvider,
                         prizePosition: prizePosition + 1,
-                        winningAmount
+                        winningAmount: finalWinningAmount
                     });
                 }
             }
