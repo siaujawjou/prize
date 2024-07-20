@@ -29,6 +29,7 @@
         <button type="button" onclick="calculateWinnings()">Calculate Winnings</button>
     </form>
     <div class="result" id="result"></div>
+    <button id="copyButton" onclick="copyResults()" style="display:none;">Copy Results</button>
 
     <script>
         const prizeAmounts = {
@@ -135,6 +136,7 @@
             }
 
             const prizeNames = ["头奖", "二奖", "三奖", "入围", "安慰"];
+            let resultsText = '';
 
             for (const betNumber in betResults) {
                 const betResult = betResults[betNumber];
@@ -157,13 +159,31 @@
                     const p = document.createElement('p');
                     p.textContent = `${winningNumber}-${ibxText}-${betAmount}-${betType}-${serviceProvider}-[${prizePosition}]${prizeName}-${winningAmount.toFixed(2)}`;
                     resultDiv.appendChild(p);
+
+                    resultsText += `${winningNumber}-${ibxText}-${betAmount}-${betType}-${serviceProvider}-[${prizePosition}]${prizeName}-${winningAmount.toFixed(2)}\n`;
                 });
 
                 const totalP = document.createElement('p');
                 totalP.textContent = `【${betNumber}】号单 总奖金数 = $${totalWinning}`;
                 totalP.style.fontWeight = 'bold';
                 resultDiv.appendChild(totalP);
+
+                resultsText += `【${betNumber}】号单 总奖金数 = $${totalWinning}\n\n`;
             }
+
+            document.getElementById('copyButton').style.display = 'block';
+            document.getElementById('copyButton').dataset.results = resultsText;
+        }
+
+        function copyResults() {
+            const resultsText = document.getElementById('copyButton').dataset.results;
+            const textarea = document.createElement('textarea');
+            textarea.value = resultsText;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            alert('Results copied to clipboard');
         }
     </script>
 </body>
