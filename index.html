@@ -84,6 +84,7 @@
 
             const lines = betInput.split('\n');
             const betResults = {};
+            let grandTotal = 0;
 
             let currentBetNumber = null;
 
@@ -123,6 +124,7 @@
                     }
 
                     betResults[currentBetNumber].totalWinning += finalWinningAmount;
+                    grandTotal += finalWinningAmount;
                     betResults[currentBetNumber].details.push({
                         winningNumber,
                         ibxOption,
@@ -170,6 +172,13 @@
 
                 resultsText += `【${betNumber}】号单 总奖金数 = $${totalWinning}\n\n`;
             }
+
+            const grandTotalP = document.createElement('p');
+            grandTotalP.textContent = `总奖金数 = $${grandTotal.toFixed(2)}`;
+            grandTotalP.style.fontWeight = 'bold';
+            resultDiv.appendChild(grandTotalP);
+
+            resultsText += `总奖金数 = $${grandTotal.toFixed(2)}\n`;
 
             document.getElementById('copyButton').style.display = 'block';
             document.getElementById('copyButton').dataset.results = resultsText;
